@@ -1,97 +1,193 @@
-// Funzione da testare
-// fn somma(a: i32, b: i32) -> i32 {
-//     a + b
-// }
+//! # Libreria per gestire i prodotti.
+//! Questa libreria è per gestire i prodotti.
+pub mod product {
+    // Rendiamo esportabili per altri file e moduli
 
-// // Modulo per testing
-// #[cfg(test)]
-// mod tests {
-//     use super::*;  // Importa le funzioni del modulo principale
+    pub mod category {
+        /// Il trait PartialEq è utilizzato per confrontare i prodotti, è richiesto dal crate array_tool
+        #[derive(Debug, PartialEq)]
+        pub enum Category {
+            Electronics,
+            Clothing,
+            Books,
+            HomeGoods,
+            Sports,
+            Food,
+            Beauty,
+            Toys,
+            Other,
+        }
+    }
+    use crate::product::category::Category; // Importazione della categoria, sarà disponibile per il resto del modulo
 
-//     #[test] // Testiamo la funzione somma()
-//     fn test_somma() {
-//         assert_eq!(somma(2, 3), 5);  // Verifica che somma(2, 3) restituisca 5
-//     }
-// }
-
-mod shapes {
-    pub struct Circle {
-        radius: f32,
+    /// Il trait PartialEq è utilizzato per confrontare i prodotti, è richiesto dal crate array_tool
+    #[derive(Debug, PartialEq)]
+    pub struct Product {
+        // Per le struct:
+        pub id: u32, // Rendere pubblico ogni campo che useremo in altri moduli / file
+        pub name: String,
+        pub price: f64,
+        pub category: crate::product::category::Category, // Esempio con percorso assoluti
     }
 
-    impl Circle {
-        pub fn new(radius: f32) -> Circle {
-            Circle { radius }
-        }
+    impl Product {
+        /// # Testing
+        /// ```
+        /// use testing::product::category::Category;
+        /// use testing::product::Product;
+        ///
+        /// let product = Product::new(1, "Product".to_string(), 10.0, Category::Electronics);
+        /// assert_eq!(product.get_id(), 1);
+        /// ```
 
-        pub fn new_1(radius: f32) -> Result<Circle, String> {
-            if radius <= 0.0 {
-                Err("Radius must be positive".to_string())
-            } else {
-                Ok(Circle { radius })
+        pub fn new(id: u32, name: String, price: f64, category: Category) -> Self {
+            Product {
+                id,
+                name,
+                price,
+                category,
             }
         }
 
-        pub fn new_2(radius: f32) -> Result<Circle, String> {
-            match radius {
-                r if r <= 0.0 => panic!("Radius must be positive"),
-                _ => Ok(Circle { radius }),
-            }
+        // ✅ Getter pubblici (solo lettura)
+        pub fn get_id(&self) -> u32 {
+            self.id
         }
 
-        pub fn contains(&self, other: &Circle) -> bool {
-            self.radius > other.radius
+        pub fn get_name(&self) -> &str {
+            &self.name
+        }
+
+        pub fn get_price(&self) -> f64 {
+            self.price
+        }
+
+        pub fn get_category(&self) -> &Category {
+            &self.category
+        }
+
+        // ✅ Setter privati (modificano lo stato)
+        fn set_id(&mut self, id: u32) {
+            self.id = id;
+        }
+
+        fn set_price(&mut self, price: f64) {
+            self.price = price;
         }
     }
 }
 
-fn private_fn(){}
+pub mod order {
 
-// Unit test
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn larger_circle_should_contain_smaller() {
-        let larger_circle = shapes::Circle::new(5.0);
-        let smaller_circle = shapes::Circle::new(2.0);
-
-        assert_eq!(
-            larger_circle.contains(&smaller_circle),
-            true,
-            "The larger circle should contain the smaller circle"
-        );
-
-        assert_ne!(
-            larger_circle.contains(&smaller_circle),
-            false,
-            "This should never be false"
-        );
-
-        assert!(
-            larger_circle.contains(&smaller_circle),
-            "Larger circle should contain the smaller one"
-        );
+    pub mod order_status {
+        #[derive(Debug)]
+        pub enum OrderStatus {
+            Pending,
+            Processing,
+            Shipped,
+            Delivered,
+            Cancelled,
+        }
     }
 
-    #[test]
-    fn new_circle_should_have_positive_radius() {
-        let result = shapes::Circle::new_1(-1.0);
-        assert!(
-            result.is_err(),
-            "Creating a circle with a negative radius should return an error" // ❌ Questo test fallirebbe se il codice non restituisse un errore
-        );
+    use self::order_status::OrderStatus; // Importazione da altro modulo pubblico esposto
+    use crate::customer::Customer;
+    use crate::product::Product;
+
+    #[derive(Debug)]
+    pub struct Order {
+        pub id: u64,
+        pub products: Vec<Product>,
+        pub customer: Customer,
+        pub status: OrderStatus,
+        pub quantity: u32,
+        pub total_price: f64,
+        pub shipping_address: String,
+        pub tracking_number: String,
     }
 
-    #[test]
-    #[should_panic(expected = "Radius must be positive")]
-    fn should_not_create_circle_with_negative_radius() {
-        shapes::Circle::new_2(-1.0).unwrap(); // ❌ Errore corretto: unwrap() necessario per attivare il panic
+    impl Order {
+        pub fn new(
+            customer: Customer,
+            products: Vec<Product>,
+            status: OrderStatus,
+            quantity: u32,
+            shipping_address: String,
+            tracking_number: String,
+        ) -> Self {
+            let total_price = products.iter().map(|p| p.get_price()).sum();
+            Order {
+                id: 0,
+                products,
+                customer,
+                status,
+                quantity,
+                total_price,
+                shipping_address,
+                tracking_number,
+            }
+        }
+
+        pub fn calculate_total_price(&self) -> f64 {
+            self.products.iter().map(|p| p.get_price()).sum()
+        }
+
+        pub fn calculate_shipping_cost(&self) -> f64 {
+            let prices: Vec<f64> = self.products.iter().map(|p| p.get_price()).collect();
+            println!("Prezzi prodotti: {:?}", prices);
+
+            prices.iter().sum::<f64>() * 0.05
+        }
+
+        fn calculate_discount(&self, discount_percentage: f64) -> f64 {
+            self.calculate_total_price() * (1.0 - discount_percentage / 100.0)
+        }
+
+        fn calculate_final_price(&self, discount_percentage: f64) -> f64 {
+            self.calculate_discount(discount_percentage) + self.calculate_shipping_cost()
+        }
+
+        pub fn get_order_customer(&self) -> &Customer {
+            &self.customer
+        }
+    }
+}
+
+pub mod customer {
+
+    #[derive(Debug)]
+    pub struct Customer {
+        pub id: u64,
+        pub name: String,
+        pub email: String,
+        pub phone: String,
     }
 
-    #[test]
-    fn private_function_should_not_be_accessible() {
-        private_fn();
+    impl Customer {
+        pub fn new(id: u64, name: String, email: String, phone: String) -> Self {
+            Customer {
+                id,
+                name,
+                email,
+                phone,
+            }
+        }
+
+        pub fn get_id(&self) -> u64 {
+            // ✅ Ora è pubblico
+            self.id
+        }
+
+        pub fn get_name(&self) -> &str {
+            &self.name
+        }
+
+        pub fn get_email(&self) -> &str {
+            &self.email
+        }
+
+        pub fn get_phone(&self) -> &str {
+            &self.phone
+        }
     }
 }
