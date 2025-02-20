@@ -1,97 +1,36 @@
-// Funzione da testare
-// fn somma(a: i32, b: i32) -> i32 {
-//     a + b
-// }
-
-// // Modulo per testing
-// #[cfg(test)]
-// mod tests {
-//     use super::*;  // Importa le funzioni del modulo principale
-
-//     #[test] // Testiamo la funzione somma()
-//     fn test_somma() {
-//         assert_eq!(somma(2, 3), 5);  // Verifica che somma(2, 3) restituisca 5
-//     }
-// }
-
-mod shapes {
-    pub struct Circle {
-        radius: f32,
+pub mod sorting_algorithms {
+    pub fn selection_sort(arr: &mut Vec<i32>) {
+        let len = arr.len();
+        for i in 0..len {
+            let mut min_index = i;
+            for j in (i + 1)..len {
+                if arr[j] < arr[min_index] {
+                    min_index = j;
+                }
+            }
+            arr.swap(i, min_index);
+        }
     }
 
-    impl Circle {
-        pub fn new(radius: f32) -> Circle {
-            Circle { radius }
-        }
-
-        pub fn new_1(radius: f32) -> Result<Circle, String> {
-            if radius <= 0.0 {
-                Err("Radius must be positive".to_string())
-            } else {
-                Ok(Circle { radius })
+    pub fn bubble_sort(arr: &mut Vec<i32>) {
+        let len = arr.len();
+        for i in 0..len {
+            for j in 0..(len - i - 1) {
+                if arr[j] > arr[j + 1] {
+                    arr.swap(j, j + 1);
+                }
             }
         }
+    }
 
-        pub fn new_2(radius: f32) -> Result<Circle, String> {
-            match radius {
-                r if r <= 0.0 => panic!("Radius must be positive"),
-                _ => Ok(Circle { radius }),
+    pub fn insertion_sort(arr: &mut Vec<i32>) {
+        let len = arr.len();
+        for i in 1..len {
+            let mut j = i;
+            while j > 0 && arr[j - 1] > arr[j] {
+                arr.swap(j, j - 1);
+                j -= 1;
             }
         }
-
-        pub fn contains(&self, other: &Circle) -> bool {
-            self.radius > other.radius
-        }
-    }
-}
-
-fn private_fn(){}
-
-// Unit test
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn larger_circle_should_contain_smaller() {
-        let larger_circle = shapes::Circle::new(5.0);
-        let smaller_circle = shapes::Circle::new(2.0);
-
-        assert_eq!(
-            larger_circle.contains(&smaller_circle),
-            true,
-            "The larger circle should contain the smaller circle"
-        );
-
-        assert_ne!(
-            larger_circle.contains(&smaller_circle),
-            false,
-            "This should never be false"
-        );
-
-        assert!(
-            larger_circle.contains(&smaller_circle),
-            "Larger circle should contain the smaller one"
-        );
-    }
-
-    #[test]
-    fn new_circle_should_have_positive_radius() {
-        let result = shapes::Circle::new_1(-1.0);
-        assert!(
-            result.is_err(),
-            "Creating a circle with a negative radius should return an error" // ❌ Questo test fallirebbe se il codice non restituisse un errore
-        );
-    }
-
-    #[test]
-    #[should_panic(expected = "Radius must be positive")]
-    fn should_not_create_circle_with_negative_radius() {
-        shapes::Circle::new_2(-1.0).unwrap(); // ❌ Errore corretto: unwrap() necessario per attivare il panic
-    }
-
-    #[test]
-    fn private_function_should_not_be_accessible() {
-        private_fn();
     }
 }
