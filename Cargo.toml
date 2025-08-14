@@ -4,3 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+
+[dev-dependencies]
+# Utility comode per test di integrazione; opzionali
+assert_cmd = "2"       # per testare binari come sottoprocessi
+predicates = "3"       # per asserzioni su stringhe/output
+tempfile = "3"         # per directory temporanee

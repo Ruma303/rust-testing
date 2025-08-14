@@ -1,5 +1,5 @@
 use testing::product::{Product, category::Category};
-use testing::customer::Customer;
+use testing::customer::customer::Customer;
 use testing::order::{Order, order_status::OrderStatus};
 
 fn main() {
