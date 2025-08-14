@@ -80,14 +80,14 @@ mod test {
         let result = shapes::Circle::new_1(-1.0);
         assert!(
             result.is_err(),
-            "Creating a circle with a negative radius should return an error" // ❌ Questo test fallirebbe se il codice non restituisse un errore
+            "Creating a circle with a negative radius should return an error" // Questo test fallirebbe se il codice non restituisse un errore
         );
     }
 
     #[test]
     #[should_panic(expected = "Radius must be positive")]
     fn should_not_create_circle_with_negative_radius() {
-        shapes::Circle::new_2(-1.0).unwrap(); // ❌ Errore corretto: unwrap() necessario per attivare il panic
+        shapes::Circle::new_2(-1.0).unwrap(); // unwrap() necessario per attivare il panic
     }
 
     #[test]
