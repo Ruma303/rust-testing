@@ -14,10 +14,10 @@
 //     }
 // }
 
-mod shapes {
+pub mod shapes {
     #[derive(Debug)]
     pub struct Circle {
-        radius: f32,
+        pub radius: f32,
     }
 
     impl Circle {
