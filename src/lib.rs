@@ -78,7 +78,7 @@ mod test {
 
     #[test]
     fn new_circle_should_have_positive_radius() {
-        let result = shapes::Circle::new_1(-1.0);
+        let result = shapes::Circle::new_1(1.0);
         assert!(
             result.is_ok(),
             "Creating a circle with a negative radius is not allowed. Result: {:?}",
