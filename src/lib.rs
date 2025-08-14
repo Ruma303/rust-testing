@@ -15,6 +15,7 @@
 // }
 
 mod shapes {
+    #[derive(Debug)]
     pub struct Circle {
         radius: f32,
     }
@@ -25,10 +26,10 @@ mod shapes {
         }
 
         pub fn new_1(radius: f32) -> Result<Circle, String> {
-            if radius <= 0.0 {
-                Err("Radius must be positive".to_string())
-            } else {
+            if radius > 0.0 {
                 Ok(Circle { radius })
+            } else {
+                Err("Radius must be positive".to_string())
             }
         }
 
@@ -45,7 +46,7 @@ mod shapes {
     }
 }
 
-fn private_fn(){}
+fn private_fn() {}
 
 // Unit test
 #[cfg(test)]
@@ -79,8 +80,9 @@ mod test {
     fn new_circle_should_have_positive_radius() {
         let result = shapes::Circle::new_1(-1.0);
         assert!(
-            result.is_err(),
-            "Creating a circle with a negative radius should return an error" // Questo test fallirebbe se il codice non restituisse un errore
+            result.is_ok(),
+            "Creating a circle with a negative radius is not allowed. Result: {:?}",
+            result.unwrap_err()
         );
     }
 
